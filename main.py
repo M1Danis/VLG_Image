@@ -33,7 +33,6 @@ def load_images(img_fold, image_size=(img_size, img_size)):
         img = load_img(img_path, target_size=image_size)
         img = img_to_array(img)/255 
         images.append(img)
-        # augmentation x more samples
         img1=cv.flip(img,1)
         images.append(img_to_array(img1))
         img2=cv.flip(img,-1)
@@ -50,7 +49,6 @@ def load_images(img_fold, image_size=(img_size, img_size)):
 def unet(input_shape=(img_size,img_size,3)):
     inputs=Input(input_shape)
     
-    #encoder part
     dlayer1 = layers.Conv2D(128, (3, 3), padding='same', strides=2)(inputs)
     dlayer1 = layers.BatchNormalization()(dlayer1)
     dlayer1 = layers.LeakyReLU()(dlayer1)
@@ -112,10 +110,10 @@ def train_model():
     model=unet(input_shape=(img_size,img_size,3))        
     model.compile(optimizer=RMSprop(learning_rate=0.001),loss='mean_absolute_error',metrics=['accuracy'])
     
-    early_stopping=EarlyStopping(monitor='val_loss',patience=10,restore_best_weights=True)
+    early_s=EarlyStopping(monitor='val_loss',patience=10,restore_best_weights=True)
     lr_reduction=ReduceLROnPlateau(monitor='val_loss',factor=0.1,patience=5,min_lr=0.00001)
 
-    model.fit(noisy_images,clean_images,epochs=epochs,batch_size=batch_size,verbose=1,validation_data=(noisy_images,clean_images),callbacks=[early_stopping,lr_reduction])
+    model.fit(noisy_images,clean_images,epochs=epochs,batch_size=batch_size,verbose=1,validation_data=(noisy_images,clean_images),callbacks=[early_s,lr_reduction])
 
     return model
 
